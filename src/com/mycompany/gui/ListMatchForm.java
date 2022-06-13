@@ -1,6 +1,7 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package com.mycompany.gui;
 
@@ -45,14 +46,14 @@ import com.codename1.ui.layouts.FlowLayout;
 import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.layouts.LayeredLayout;
 import com.codename1.ui.plaf.Style;
-import com.mycompany.entites.Match;
+import com.mycompany.entites.Matche;
 import com.mycompany.services.ServiceMatch;
 import java.util.ArrayList;
 /**
  *
- * @author HP USER
+ * @author DeLL
  */
-    public class ListMatchForm extends BaseForm{
+public class ListMatchForm extends BaseForm{
     Form current;
     public ListMatchForm(Resources res){
      super("Newsfeed",BoxLayout.y());
@@ -63,7 +64,6 @@ import java.util.ArrayList;
         getTitleArea().setUIID("container") ;
         setTitle("Liste Match");
         getContentPane().setScrollVisible(false);
-        super.addSideMenu(res);
         
         tb.addSearchCommand(e -> {
             
@@ -74,7 +74,7 @@ import java.util.ArrayList;
         Label s1 = new Label();
         Label s2 = new Label();
         
-        addTab(swipe,s1, res.getImage("back-logo.jpeg"),"","",res);
+        addTab(swipe,s1, res.getImage("logoo.png"),"","",res);
         
         
         
@@ -162,11 +162,11 @@ import java.util.ArrayList;
 
         
         //Appel affichageMatche
-        ArrayList<Match>list = ServiceMatch.getInstance().affichageMatche();
+        ArrayList<Matche>list = ServiceMatch.getInstance().affichageMatche();
         
-        for(Match m : list ){
+        for(Matche m : list ){
            // String urlImage ="logoo.png"; 
-             String urlImage = "http://localhost/VolcanoFootball/uploads/"+m.getImage1();
+             String urlImage = "http://localhost/upload/"+m.getPhoto();
             
             Image placeHolder = Image.createImage(120, 90);
             EncodedImage enc = EncodedImage.createFromImage(placeHolder,false);
@@ -231,7 +231,7 @@ import java.util.ArrayList;
        l.getParent().repaint();
     }
 
-    private void addButton(Image img,Match m , Resources res) {
+    private void addButton(Image img,Matche m , Resources res) {
         int height = Display.getInstance().convertToPixels(11.5f);
         int width = Display.getInstance().convertToPixels(14f);
         
@@ -239,8 +239,8 @@ import java.util.ArrayList;
         image.setUIID("Label");
         Container cnt =  BorderLayout.west(image);
         
-        Label nomMatcheText = new Label("Nom Matche : "+m.getNom_match(),"NewsTopLine2");
-        Label nomArbitreText = new Label("Nom Arbitre : "+m.getNom_arbitre(),"NewsTopLine2");
+        Label nomMatcheText = new Label("Nom Matche : "+m.getNomMatche(),"NewsTopLine2");
+        Label nomArbitreText = new Label("Nom Arbitre : "+m.getNomArbitre(),"NewsTopLine2");
         //Label stadeText = new Label("Stade : "+m.getStade(),"NewsTopLine2");
         Label tourText = new Label("Tour : "+m.getTour(),"NewsTopLine2");
         Label margin = new Label("","NewsTopLine2");
@@ -254,11 +254,50 @@ import java.util.ArrayList;
 
         lDetailMatch.addPointerPressedListener(l -> {
             
-       //     new DetailMatch(res,m).show();
+            new DetailMatch(res,m).show();
             refreshTheme();
         
         });
-       
+        //Supp Button
+        Label lSupprimer = new Label(" ");
+        lSupprimer.setUIID("NewsTopLine");
+        Style supprimerStyle = new Style(lSupprimer.getUnselectedStyle());
+        supprimerStyle.setFgColor(0xf21f1f);
+        
+        FontImage supprimerImage = FontImage.createMaterial(FontImage.MATERIAL_DELETE, supprimerStyle);
+        lSupprimer.setIcon(supprimerImage);
+        lSupprimer.setTextPosition(RIGHT);
+        //click delete icon
+        lSupprimer.addPointerPressedListener(l -> {
+            
+        Dialog dig = new Dialog("Suppression");
+        if(dig.show("Suppression","Vous voulez supprimer ce Match ?","Annuler","Oui")){
+            dig.dispose();
+        }
+        else{
+            dig.dispose();
+            //n3ayt l supprimer m service match
+            if(ServiceMatch.getInstance().deleteMatch(m.getId())){
+                new ListMatchForm(res).show();
+            }
+        }
+        });
+        //update icon
+        Label lModifier = new Label(" ");
+        lModifier.setUIID("NewsTopLine");
+        Style modifierStyle = new Style(lModifier.getUnselectedStyle());
+        modifierStyle.setFgColor(0xf7ad02);
+        
+        FontImage mFontImage = FontImage.createMaterial(FontImage.MATERIAL_MODE_EDIT, modifierStyle);
+        lModifier.setIcon(mFontImage);
+        lModifier.setTextPosition(LEFT);
+          
+        
+        lModifier.addPointerPressedListener(l ->  {
+            //System.out.println("Hello update");
+            new ModifierMatchForm(res,m).show();
+        });
+        
         
         
         //
@@ -268,11 +307,21 @@ import java.util.ArrayList;
                 BoxLayout.encloseX(nomMatcheText),
                 BoxLayout.encloseX(nomArbitreText),
                 //BoxLayout.encloseX(stadeText),
-                //BoxLayout.encloseX(tourText,lModifier,lSupprimer),
+                BoxLayout.encloseX(tourText,lModifier,lSupprimer),
                 BoxLayout.encloseX(margin, lDetailMatch)
         ));
         
-      
+        //add(cnt); 
+        add(cnt);
+
+        Button btnAjouter = new Button("Ajouter");
+        addStringValue("", btnAjouter);
+
+        btnAjouter.addActionListener((e) -> {
+
+            new AjoutMatchForm(res).show();
+
+        });
 
     }
     private void addStringValue(String s, Component v) {
@@ -283,4 +332,3 @@ import java.util.ArrayList;
     }
                 
 }
-
